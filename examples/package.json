@@ -1,0 +1,42 @@
+{
+    "name": "cyk-bnf-cfg-ast-creator-examples",
+    "version": "0.0.1",
+    "description": "Examples for CYK-BNF-CFG-AST-creator",
+    "private": true,
+    "scripts": {
+        "start": "webpack-dev-server --env dev",
+        "build": "webpack --env prod"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TarVK/model-react.git"
+    },
+    "keywords": [
+        "CYK",
+        "BNF",
+        "CFG",
+        "AST"
+    ],
+    "author": "Tar van Krieken",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TarVK/CYK-BNF-CFG-AST-creator-examples/issues"
+    },
+    "homepage": "https://github.com/TarVK/CYK-BNF-CFG-AST-creator-examples#readme",
+    "dependencies": {
+        "@deity/falcon-ui": "^0.2.4",
+        "CYK-BNF-CFG-AST-creator": "link:..",
+        "react": "^16.11.0",
+        "react-dom": "^16.11.0"
+    },
+    "devDependencies": {
+        "@types/react": "^16.8.19",
+        "@types/react-dom": "^16.8.4",
+        "@types/react-router-dom": "^4.3.3",
+        "ts-loader": "^6.0.2",
+        "typescript": "^3.5.1",
+        "webpack": "^4.32.2",
+        "webpack-cli": "^3.3.2",
+        "webpack-dev-server": "^3.5.0"
+    }
+}

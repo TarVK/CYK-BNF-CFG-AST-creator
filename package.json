@@ -1,0 +1,38 @@
+{
+    "name": "cyk-bnf-cfg-ast-creator",
+    "version": "0.0.1",
+    "description": "An AST creator using the CYK algorithm that uses CNF CFG derived from a BNF-like CFG",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
+    "files": [
+        "build/*"
+    ],
+    "scripts": {
+        "start": "webpack --watch --env dev",
+        "build": "webpack --env prod"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TarVK/CYK-BNF-CFG-AST-creator-examples.git"
+    },
+    "keywords": [
+        "CYK",
+        "BNF",
+        "CFG",
+        "AST"
+    ],
+    "author": "Tar van Krieken",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TarVK/CYK-BNF-CFG-AST-creator-examples/issues"
+    },
+    "homepage": "https://github.com/TarVK/CYK-BNF-CFG-AST-creator-examples#readme",
+    "devDependencies": {
+        "ts-loader": "^6.0.2",
+        "typescript": "^3.5.1",
+        "webpack": "^4.32.2",
+        "webpack-cli": "^3.3.2",
+        "webpack-dev-server": "^3.5.0"
+    },
+    "dependencies": {}
+}
