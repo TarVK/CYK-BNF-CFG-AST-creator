@@ -1,16 +1,14 @@
-/** A syntax symbol */
-declare type Symbol = string;
+import { ISymbol } from "./ICNF";
 /** A sequence of symbols */
-declare type Pattern = {
-    left: Symbol;
-    right: Symbol;
-    defSymbol: Symbol;
+export declare type ICNFnamedPattern = {
+    left: ISymbol;
+    right: ISymbol;
+    defSymbol: ISymbol;
     metaData?: any;
 };
 /** A complete CNF grammar */
 export declare type IReverseCNF = {
     [symbol: string]: {
-        [symbol: string]: Pattern[];
+        [symbol: string]: ICNFnamedPattern[];
     };
 };
-export {};

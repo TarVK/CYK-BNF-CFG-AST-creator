@@ -1,23 +1,17 @@
 /** A syntax symbol */
-declare type Symbol = string;
+export declare type ISymbol = string;
 /** A sequence of symbols */
-declare type Pattern = {
+export declare type ICNFpattern = {
     /** The left symbol of the pattern */
-    left: Symbol;
+    left: ISymbol;
     /** The right symbol of the pattern */
-    right: Symbol;
+    right: ISymbol;
     /** Any contextual data you want to attach to the resulting AST */
     metaData?: any;
 };
 /** A Symbol definition */
-declare type SymbolDef = Pattern[] | {
-    /** The patterns to chose from for a symbol */
-    options: Pattern[];
-    /** Any contextual data you want to attach to the resulting AST */
-    metaData?: any;
-};
+export declare type ICNFsymbolDef = ICNFpattern[];
 /** A complete CNF grammar */
 export declare type ICNF = {
-    [symbol: string]: SymbolDef;
+    [symbol: string]: ICNFsymbolDef;
 };
-export {};

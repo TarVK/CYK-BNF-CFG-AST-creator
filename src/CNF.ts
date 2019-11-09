@@ -1,7 +1,10 @@
-import {ICNF, Isymbol} from "./_types/CNF/ICNF";
+import {ICNF} from "./_types/CNF/ICNF";
 import {IReverseCNF} from "./_types/CNF/IReverseCNF";
-import {ICYKtable} from "./_types/CNF/ICYKtable";
+import {ICYKtable, ICYKcell} from "./_types/CNF/ICYKtable";
 import {ICNFtree} from "./_types/CNF/ICNFtree";
+import {ITokenized} from "./_types/Tokenizer/ITokenized";
+import {ICNFstackItem} from "./_types/CNF/ICNFstackItem";
+import {ICNFerror} from "./_types/CNF/ICNFerror";
 
 /**
  * A class to represent a CNF grammar, and allows for creation of a binary tree from a token array
@@ -10,15 +13,20 @@ export class CNF {
     // The grammar
     protected grammar: ICNF;
 
+    // The symbol that the matched input should have as a whole
+    protected startSymbol: string;
+
     // The lookup table, such that a symbol can be obtained given its definition
     protected lookupTable: IReverseCNF;
 
     /**
      * Creates a new instance
      * @param grammar The grammmar to create an instance for
+     * @param startSymbol The symbol that a matched string should have
      */
-    constructor(grammar: ICNF) {
+    constructor(grammar: ICNF, startSymbol: string) {
         this.grammar = grammar;
+        this.startSymbol = startSymbol;
         this.lookupTable = this.createLookupTable(grammar);
     }
 
@@ -50,10 +58,9 @@ export class CNF {
 
         // Go through all definitions
         Object.keys(grammar).forEach(symbol => {
-            const definition = grammar[symbol];
+            const options = grammar[symbol];
 
             // Go through the options of every definition
-            const options = definition instanceof Array ? definition : definition.options;
             options.forEach(option => {
                 // Make sure an object exists to store all patterns that containt he left symbol
                 if (!lookup[option.left]) lookup[option.left] = {};
@@ -63,7 +70,7 @@ export class CNF {
                 if (!leftMap[option.right]) leftMap[option.right] = [];
 
                 // Add the pattern to the map
-                const leftAndRightMap = (leftMap[option.right] = []);
+                const leftAndRightMap = leftMap[option.right];
                 leftAndRightMap.push({...option, defSymbol: symbol});
             });
         });
@@ -74,46 +81,60 @@ export class CNF {
     /**
      * Creates a CYk table given an input string
      * @param input The input tokens
+     * @param approximate Whether to allow changing a right token to improve the match
      * @returns The table
      */
-    public performCYK(input: Isymbol[]): ICYKtable {
+    public performCYK(input: ITokenized, approximate?: boolean): ICYKtable {
+        // usage of re represents the column or range end, and rs the row or range start (as index of the token)
+
         // Declare the table
         const table: ICYKtable = [];
-        for (let i = 0; i < input.length; i++) {
-            // i represents the column, and j the row
-            table[i] = [];
-            for (let j = 0; j <= i; j++) {
-                table[i][j] = {symbols: [], definitions: []};
+        for (let rs = 0; rs < input.length; rs++) table[rs] = [];
+        for (let re = 0; re < input.length; re++) {
+            for (let rs = re; rs >= 0; rs--) {
+                const cell = (table[rs][re] = {
+                    symbols: [],
+                    definitions: [],
+                    range: {start: null, end: null},
+                }) as ICYKcell;
 
                 // Initialize the value if it's on the diagonal
-                if (i == j) table[i][j].symbols.push(input[i]);
+                if (rs == re) {
+                    const s = input[rs].symbol;
+                    cell.symbols.push(s);
+                    const t = this.lookupTable[s];
+                    if (t && t["undefined"])
+                        t["undefined"].forEach(symbol =>
+                            cell.symbols.push(symbol.defSymbol)
+                        );
+                    cell.range = input[rs].range;
+                } else {
+                    cell.range.start = table[rs][rs].range.start;
+                    cell.range.end = table[re][re].range.end;
+                }
             }
         }
 
         // Fill the table (skipping the diagonal since that's already initialized)
-        for (let i = 1; i < input.length; i++) {
-            for (let j = i - 1; j >= 0; j--) {
-                const cell = table[i][j];
-
+        for (let re = 1; re < input.length; re++) {
+            for (let rs = re - 1; rs >= 0; rs--) {
+                const cell = table[rs][re];
                 // Go through all the options for combining subparts
-                for (let k = j; k < i; k++) {
-                    let il = k;
-                    let jl = j - k + i; // starts at i, ends at j+1 in the loop
-
+                for (let k = rs; k < re; k++) {
                     // Get this option for left and right pair
-                    let left = table[il][j];
-                    let right = table[i][jl];
+                    let left = table[rs][k];
+                    let right = table[k + 1][re];
 
                     // Go through all combinations of left and right symbol options
-                    for (let LSI = 0; LSI < left.symbols.length; LSI++) {
-                        const leftSymbol = left.symbols[LSI];
+                    for (let lsI = 0; lsI < left.symbols.length; lsI++) {
+                        const leftSymbol = left.symbols[lsI];
                         // Check the lookup to see if this fits a definition
                         const leftDefs = this.lookupTable[leftSymbol];
                         if (!leftDefs) continue;
 
                         // Combine it with all the right options
-                        for (let RSI = 0; RSI < right.symbols.length; RSI++) {
-                            const rightSymbol = right.symbols[RSI];
+                        for (let rsI = 0; rsI < right.symbols.length; rsI++) {
+                            const rightSymbol = right.symbols[rsI];
                             const defs = leftDefs[rightSymbol];
                             if (!defs) continue;
 
@@ -139,7 +160,64 @@ export class CNF {
      * @param input The input to construct a tree for
      * @returns The tree
      */
-    public getBinaryTree(input: Isymbol[]): ICNFtree {
-        return undefined;
+    public getBinaryTree(input: ITokenized): ICNFtree | ICNFerror {
+        // Obtain the table using CYK
+        const table = this.performCYK(input);
+
+        // Check if we matched the whole input with the required start symbol, and return an error otherwise
+        let re = input.length - 1;
+        table[0][re].symbols = table[0][re].symbols.filter(
+            value => value == this.startSymbol
+        );
+        if (table[0][re].symbols.length == 0) return {error: true, table};
+
+        // Create a tree from this info
+        const c = (rs: number, re: number): ICNFstackItem => ({
+            cell: table[rs][re],
+            index: [rs, re],
+            node: null,
+            pattern: null,
+            left: null,
+            right: null,
+        });
+        const stack: ICNFstackItem[] = [c(0, re)];
+        while (stack.length > 0) {
+            const top = stack[stack.length - 1];
+            const cell = top.cell;
+            const [rs, re] = top.index;
+
+            // Check whether this is a base token, or combined token
+            if (rs == re) {
+                // Remove the item from the stack, and create the node
+                stack.pop();
+                top.node = input[rs];
+                if (stack.length == 0) return top.node;
+            } else {
+                // Check whether the item was just pushed to the stack, of all children were just popped
+                if (!top.left) {
+                    // Get the definition to use, and create the child items to add to the stack
+                    const definition = (top.pattern = cell.definitions.find(
+                        (def, i) => def.rightRecursive || i == cell.definitions.length - 1
+                    ));
+                    const left = (top.left = c(rs, definition.index));
+                    const right = (top.right = c(definition.index + 1, re));
+                    stack.push(left, right);
+                } else {
+                    // Pop the stack item, and assemble the node using the children
+                    stack.pop();
+                    const left = top.left.node;
+                    const right = top.right.node;
+                    top.node = {
+                        symbol: top.pattern.defSymbol,
+                        left,
+                        right,
+                        pattern: top.pattern,
+                        range: {start: left.range.start, end: right.range.end},
+                        text: left.text + right.text,
+                    };
+                    if (stack.length == 0) return top.node;
+                }
+            }
+        }
     }
 }

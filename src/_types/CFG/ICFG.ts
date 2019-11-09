@@ -2,7 +2,7 @@
 type Symbol = string;
 
 /** A sequence of symbols */
-type Pattern = {
+export type ICFGpattern = {
     /** The sequence of symbols of this pattern */
     parts: (Symbol | {[name: string]: Symbol})[];
     /** Whether to perform left or right recursion given a left and right recursive pattern*/
@@ -12,15 +12,15 @@ type Pattern = {
 };
 
 /** A Symbol definition */
-type SymbolDef =
-    | Pattern[]
+export type ICFGsymbolDef =
+    | ICFGpattern[]
     | {
           /** The patterns to chose from for a symbol */
-          options: Pattern[];
+          options: ICFGpattern[];
           /** Any contextual data you want to attach to the resulting AST */
           metaData?: any;
       }
-    | Pattern;
+    | ICFGpattern;
 
 /** A complete BNF grammar */
-export type IBNF = {[symbol: string]: SymbolDef};
+export type ICFG = {[symbol: string]: ICFGsymbolDef};

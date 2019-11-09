@@ -1,15 +1,14 @@
-import {ICNFpattern, ISymbol} from "./ICNF";
+import {ISymbol} from "../CNF/ICNF";
+import {ICFGpattern} from "./ICFG";
 
-export type ICNFtree =
+export type ICFGtree =
     | {
           /** The symbol that this node represents */
           symbol: ISymbol;
           /** The pattern that this node was created from */
-          pattern: ICNFpattern;
-          /** The left subtree */
-          left: ICNFtree;
-          /** The right subtree */
-          right: ICNFtree;
+          pattern: ICFGpattern;
+          /** The children of this node */
+          children: {[name: string]: ICFGtree};
           /** The range of the input that this node covers */
           range: {start: number; end: number};
           /** The text this node represents */

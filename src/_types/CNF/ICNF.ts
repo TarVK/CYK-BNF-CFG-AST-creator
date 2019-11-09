@@ -1,25 +1,20 @@
 /** A syntax symbol */
-export type Isymbol = string;
+export type ISymbol = string;
 
 /** A sequence of symbols */
 export type ICNFpattern = {
     /** The left symbol of the pattern */
-    left: Isymbol;
+    left: ISymbol;
     /** The right symbol of the pattern */
-    right: Isymbol;
+    right: ISymbol;
+    /** Whether this is a left recursive rule */
+    rightRecursive?: boolean;
     /** Any contextual data you want to attach to the resulting AST */
     metaData?: any;
 };
 
 /** A Symbol definition */
-export type ICNFsymbolDef =
-    | ICNFpattern[]
-    | {
-          /** The patterns to chose from for a symbol */
-          options: ICNFpattern[];
-          /** Any contextual data you want to attach to the resulting AST */
-          metaData?: any;
-      };
+export type ICNFsymbolDef = ICNFpattern[];
 
 /** A complete CNF grammar */
 export type ICNF = {[symbol: string]: ICNFsymbolDef};
