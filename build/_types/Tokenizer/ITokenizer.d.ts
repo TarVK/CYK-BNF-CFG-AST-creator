@@ -1,3 +1,3 @@
 export declare type ITokenizer = {
-    [symbol: string]: RegExp;
+    [symbol: string]: RegExp | string;
 };

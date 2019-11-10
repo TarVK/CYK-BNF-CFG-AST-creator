@@ -1,9 +1,12 @@
 import { CNF } from "./CNF";
-import { ICFG, ICFGpattern } from "./_types/CFG/ICFG";
-import { ICFGnormalized, ICFGpatternNormalized } from "./_types/CFG/ICFGnormalized";
+import { ICFG } from "./_types/CFG/ICFG";
+import { ICFGnormalized } from "./_types/CFG/ICFGnormalized";
 import { ITokenized } from "./_types/Tokenizer/ITokenized";
 import { ICFGtree } from "./_types/CFG/ICFGtree";
 import { ICNFerror } from "./_types/CNF/ICNFerror";
+/**
+ * A class that can be used to create an arbitrary Context Free Grammar, and allows for creation of an AST tree according to said grammar
+ */
 export declare class CFG {
     protected grammar: ICFG;
     protected startSymbol: string;
@@ -28,15 +31,16 @@ export declare class CFG {
      */
     protected copyCFG(grammar: ICFG): ICFGnormalized;
     /**
-     * Deep copies and normalizes the given pattern
-     * @param pattern The pattern to copy
-     * @param definition The definiition that this pattern was part of
-     * @returns A copy of the pattern
-     */
-    protected copyPattern(pattern: ICFGpattern): ICFGpatternNormalized;
-    /**
      * Creates a AST tree from a given input of lexical tokens
      * @param input The input
+     * @returns The resulting tree or an error
      */
     createASTtree(input: ITokenized): ICFGtree | ICNFerror;
+    /**
+     * Walks a given tree, and calls the reduce function on every node
+     * @param tree The tree to be walked
+     * @param reduce The reduce function to invoke on every node
+     * @returns The value returned by the reduce method on the root node
+     */
+    static walkTree<V>(tree: ICFGtree, reduce: (node: ICFGtree, childVals: V[]) => V): V;
 }

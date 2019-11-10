@@ -1,17 +1,21 @@
 import {CNF} from "./CNF";
 
-import {ICFG, ICFGpattern, ICFGsymbolDef} from "./_types/CFG/ICFG";
-import {ICFGnormalized, ICFGpatternNormalized} from "./_types/CFG/ICFGnormalized";
+import {ICFG} from "./_types/CFG/ICFG";
+import {ICFGnormalized} from "./_types/CFG/ICFGnormalized";
 import {ITokenized} from "./_types/Tokenizer/ITokenized";
 import {ICFGtree} from "./_types/CFG/ICFGtree";
 import {ICFGstackItem} from "./_types/CFG/ICFGstackItem";
 import {ICNFerror} from "./_types/CNF/ICNFerror";
 import {ICNFtree} from "./_types/CNF/ICNFtree";
+import {ICFGwalkStackItem} from "./_types/CFG/ICFGwalkStackItem";
 
 let s = 0;
 /** Generates a new symbol */
 const g = () => s++ + "";
 
+/**
+ * A class that can be used to create an arbitrary Context Free Grammar, and allows for creation of an AST tree according to said grammar
+ */
 export class CFG {
     // The grammar
     protected grammar: ICFG;
@@ -58,26 +62,12 @@ export class CFG {
                     cfg[newSymbol] = [
                         {
                             ...pattern,
-                            metaData: {
-                                ...pattern.metaData,
-                                partNames: pattern.metaData.partNames.slice(
-                                    0,
-                                    pattern.parts.length - 1
-                                ),
-                            },
                             parts: pattern.parts.slice(0, pattern.parts.length - 1),
                         },
                     ];
                     symbols.push(newSymbol);
                     return {
                         ...pattern,
-                        metaData: {
-                            ...pattern.metaData,
-                            partNames: [
-                                newSymbol,
-                                pattern.metaData.partNames[pattern.parts.length - 1],
-                            ],
-                        },
                         parts: [newSymbol, pattern.parts[pattern.parts.length - 1]],
                     };
                 }
@@ -90,25 +80,46 @@ export class CFG {
             const symbol = symbols[i];
             const options = cfg[symbol];
 
-            for (let j = 0; j < options.length && j < 1e4; j++) {
+            // TODO: add proper infinite recursion fix instead of it<1e4
+            let it = 0;
+            for (let j = 0; j < options.length && it++ < 1e4; j++) {
                 const pattern = options[j];
                 if (pattern.parts.length == 1) {
                     // Add the definitions of the part
                     const [part] = pattern.parts;
                     const copyOptions = cfg[part];
-                    // Make sure this isn't a terminale symbol
                     if (copyOptions) {
-                        copyOptions.forEach(option => options.push(option));
+                        // Copy definitions of non terminal symbols
+                        copyOptions.forEach(copyPattern =>
+                            options.push({
+                                ...copyPattern,
+                                metaData: {
+                                    parent: pattern.metaData,
+                                    orPattern: copyPattern.metaData.orPattern,
+                                },
+                            })
+                        );
 
-                        // Remove the option
+                        // Remove the symbol
                         options.splice(j, 1);
                         j--;
+                    } else {
+                        options.splice(j, 1, {
+                            ...pattern,
+                            ...(pattern.metaData.orPattern && {
+                                // ^ check to not define a parent without an orPattern
+                                metaData: {
+                                    parent: pattern.metaData,
+                                    orPattern: undefined,
+                                },
+                            }),
+                        });
                     }
                 }
             }
         }
 
-        // Convert the grammar to CNF
+        // Convert the CNF complying grammar to CNF format
         const cnf = {};
         for (let i = 0; i < symbols.length; i++) {
             const symbol = symbols[i];
@@ -117,7 +128,7 @@ export class CFG {
             cnf[symbol] = options.map(pattern => ({
                 left: pattern.parts[0],
                 right: pattern.parts[1],
-                metaData: pattern.metaData,
+                metaData: {...pattern.metaData},
                 ...(pattern.rightRecursive && {rightRecursive: pattern.rightRecursive}),
             }));
         }
@@ -131,49 +142,25 @@ export class CFG {
      */
     protected copyCFG(grammar: ICFG): ICFGnormalized {
         const cfg = {};
+        const copyPattern = (pattern, symbol) => ({
+            ...pattern,
+            metaData: {orPattern: {...pattern, defSymbol: symbol}},
+        });
+
         Object.keys(grammar).forEach(symbol => {
             const def = grammar[symbol];
 
-            // Normalize the options format
-            let options;
-            if (def instanceof Array) {
-                options = def.map(pattern => this.copyPattern(pattern));
-            } else if ("options" in def) {
-                options = def.options.map(pattern => this.copyPattern(pattern));
-            } else {
-                options = [this.copyPattern(def)];
-            }
-
             // Store the definition with the original definition as metadata
-            cfg[symbol] = options;
+            cfg[symbol] = def.map(pattern => copyPattern(pattern, symbol));
         });
-        return cfg;
-    }
 
-    /**
-     * Deep copies and normalizes the given pattern
-     * @param pattern The pattern to copy
-     * @param definition The definiition that this pattern was part of
-     * @returns A copy of the pattern
-     */
-    protected copyPattern(pattern: ICFGpattern): ICFGpatternNormalized {
-        return {
-            rightRecursive: pattern.rightRecursive,
-            metaData: {
-                partNames: pattern.parts.map((part, i) =>
-                    part instanceof Object ? Object.keys(part)[0] : i + ""
-                ),
-                pattern,
-            },
-            parts: pattern.parts.map((part, i) =>
-                part instanceof Object ? part[Object.keys(part)[0]] : part
-            ),
-        };
+        return cfg;
     }
 
     /**
      * Creates a AST tree from a given input of lexical tokens
      * @param input The input
+     * @returns The resulting tree or an error
      */
     public createASTtree(input: ITokenized): ICFGtree | ICNFerror {
         // Parse the tree using CNF
@@ -195,8 +182,7 @@ export class CFG {
             // Check whether this is a base token
             if (!("left" in cnfNode)) {
                 stack.pop();
-                top.node = cnfNode;
-                if (stack.length == 0) return top.node;
+                top.node = {...cnfNode} as any;
             } else {
                 // Check whether the item was just pushed to the stack, of all children were just popped
                 if (!top.left) {
@@ -208,7 +194,7 @@ export class CFG {
                     // Pop the stack item and assemble the node using its children
                     stack.pop();
                     const childrenStack = [top.left, top.right];
-                    const children = {};
+                    const children = [];
 
                     // Handle both left and right children the same
                     for (let i = 0; i < 2; i++) {
@@ -220,29 +206,84 @@ export class CFG {
                             !("children" in child.node)
                         ) {
                             // If so, just store the child under the given name
-                            children[cnfNode.pattern.metaData.partNames[i]] = child.node;
+                            children.push(child.node);
                         } else {
-                            // Otherwise, merge the childs children
-                            Object.assign(children, child.node.children);
+                            // Otherwise, merge the child's children with ours
+                            children.push(...child.node.children);
                         }
                     }
 
-                    // Sort the children
-                    const childList = Object.keys(children).map(name => children[name]);
-                    childList.sort((a, b) => a.range.start - b.range.start);
-
                     // Assemble the node
-                    const rs = childList[0].range.start;
-                    const re = childList[childList.length - 1].range.end;
-                    const text = childList.reduce((a, b) => a + b.text, "");
+                    const rs = children[0].range.start;
+                    const re = children[children.length - 1].range.end;
+                    const text = children.reduce((a, b) => a + b.text, "");
                     top.node = {
                         children,
                         range: {start: rs, end: re},
                         text,
-                        pattern: cnfNode.pattern.metaData.pattern,
+                        pattern: cnfNode.pattern.metaData.orPattern,
                         symbol: cnfNode.symbol,
                     };
-                    if (stack.length == 0) return top.node;
+                }
+            }
+
+            if (top.node && "pattern" in cnfNode) {
+                let metaData = cnfNode.pattern.metaData;
+
+                // Create children copies with different patterns to revert UNIT rule
+                while (metaData.parent) {
+                    metaData = metaData.parent;
+
+                    // Update the node to a node that wraps the current node
+                    top.node = {
+                        ...top.node,
+                        symbol: metaData.orPattern.defSymbol,
+                        pattern: metaData.orPattern,
+                        children: [top.node],
+                    };
+                }
+            }
+            if (stack.length == 0) return top.node;
+        }
+    }
+
+    /**
+     * Walks a given tree, and calls the reduce function on every node
+     * @param tree The tree to be walked
+     * @param reduce The reduce function to invoke on every node
+     * @returns The value returned by the reduce method on the root node
+     */
+    public static walkTree<V>(
+        tree: ICFGtree,
+        reduce: (node: ICFGtree, childVals: V[]) => V
+    ): V {
+        const c = (node: ICFGtree): ICFGwalkStackItem<V> => ({
+            node,
+            result: null,
+            children: null,
+        });
+        const stack: ICFGwalkStackItem<V>[] = [c(tree)];
+
+        while (stack.length > 0) {
+            const top = stack[stack.length - 1];
+            const {node} = top;
+
+            // Check whether this is a base node
+            if (!("children" in node)) {
+                top.result = reduce(node, []);
+                stack.pop();
+                if (stack.length == 0) return top.result;
+            } else {
+                // Check whether the item was just pushed to the stack, of all children were just popped
+                if (!top.children) {
+                    // Add the node's children onto the stack
+                    top.children = node.children.map(n => c(n));
+                    stack.push(...top.children);
+                } else {
+                    // Call the reduce method using the children's values
+                    stack.pop();
+                    top.result = reduce(node, top.children.map(child => child.result));
+                    if (stack.length == 0) return top.result;
                 }
             }
         }

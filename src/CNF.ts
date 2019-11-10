@@ -102,11 +102,16 @@ export class CNF {
                 if (rs == re) {
                     const s = input[rs].symbol;
                     cell.symbols.push(s);
+
+                    // Copy all the definitions and symbols that match
                     const t = this.lookupTable[s];
                     if (t && t["undefined"])
-                        t["undefined"].forEach(symbol =>
-                            cell.symbols.push(symbol.defSymbol)
-                        );
+                        t["undefined"].forEach(def => {
+                            if (!cell.symbols.includes(def.defSymbol))
+                                cell.symbols.push(def.defSymbol);
+                            cell.definitions.push({index: rs, ...def});
+                        });
+
                     cell.range = input[rs].range;
                 } else {
                     cell.range.start = table[rs][rs].range.start;
@@ -172,15 +177,16 @@ export class CNF {
         if (table[0][re].symbols.length == 0) return {error: true, table};
 
         // Create a tree from this info
-        const c = (rs: number, re: number): ICNFstackItem => ({
+        const c = (rs: number, re: number, symbol: string): ICNFstackItem => ({
             cell: table[rs][re],
             index: [rs, re],
+            symbol,
             node: null,
             pattern: null,
             left: null,
             right: null,
         });
-        const stack: ICNFstackItem[] = [c(0, re)];
+        const stack: ICNFstackItem[] = [c(0, re, this.startSymbol)];
         while (stack.length > 0) {
             const top = stack[stack.length - 1];
             const cell = top.cell;
@@ -190,17 +196,27 @@ export class CNF {
             if (rs == re) {
                 // Remove the item from the stack, and create the node
                 stack.pop();
-                top.node = input[rs];
+                const definition = cell.definitions.find(
+                    def => def.defSymbol == top.symbol
+                );
+                top.node = {
+                    ...input[rs],
+                    ...(definition && {pattern: definition}),
+                };
                 if (stack.length == 0) return top.node;
             } else {
                 // Check whether the item was just pushed to the stack, of all children were just popped
                 if (!top.left) {
                     // Get the definition to use, and create the child items to add to the stack
                     const definition = (top.pattern = cell.definitions.find(
-                        (def, i) => def.rightRecursive || i == cell.definitions.length - 1
+                        def => def.defSymbol == top.symbol
                     ));
-                    const left = (top.left = c(rs, definition.index));
-                    const right = (top.right = c(definition.index + 1, re));
+                    const left = (top.left = c(rs, definition.index, definition.left)),
+                        right = (top.right = c(
+                            definition.index + 1,
+                            re,
+                            definition.right
+                        ));
                     stack.push(left, right);
                 } else {
                     // Pop the stack item, and assemble the node using the children

@@ -7,10 +7,9 @@ export declare type ICFGpatternNormalized = {
     parts: Symbol[];
     /** Whether to perform left or right recursion given a left and right recursive pattern*/
     rightRecursive?: boolean;
-    /** Any contextual data you want to attach to the resulting AST */
+    /** Contextual data linking to the original pattern */
     metaData?: {
         pattern?: ICFGpattern;
-        partNames?: string[];
     };
 };
 /** A Symbol definition */

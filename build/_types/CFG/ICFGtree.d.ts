@@ -6,9 +6,7 @@ export declare type ICFGtree = {
     /** The pattern that this node was created from */
     pattern: ICFGpattern;
     /** The children of this node */
-    children: {
-        [name: string]: ICFGtree;
-    };
+    children: ICFGtree[];
     /** The range of the input that this node covers */
     range: {
         start: number;

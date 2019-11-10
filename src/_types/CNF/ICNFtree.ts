@@ -22,4 +22,6 @@ export type ICNFtree =
           range: {start: number; end: number};
           /** The text this node represents */
           text: string;
+          /** The pattern that this node was created from */
+          pattern?: ICNFpattern;
       };

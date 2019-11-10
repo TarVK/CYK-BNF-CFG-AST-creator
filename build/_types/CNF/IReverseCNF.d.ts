@@ -1,11 +1,8 @@
-import { ISymbol } from "./ICNF";
+import { ISymbol, ICNFpattern } from "./ICNF";
 /** A sequence of symbols */
 export declare type ICNFnamedPattern = {
-    left: ISymbol;
-    right: ISymbol;
     defSymbol: ISymbol;
-    metaData?: any;
-};
+} & ICNFpattern;
 /** A complete CNF grammar */
 export declare type IReverseCNF = {
     [symbol: string]: {

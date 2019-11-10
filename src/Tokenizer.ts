@@ -3,6 +3,11 @@ import {ITokenized} from "./_types/Tokenizer/ITokenized";
 import {ITokenizeError} from "./_types/Tokenizer/ITokenizeError";
 import {ITokenizerNormalized} from "./_types/Tokenizer/ITokenizerNormalized";
 
+//https://stackoverflow.com/a/6969486/3080469
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
+
 export class Tokenizer {
     // The tokenizer data
     protected tokenizer: ITokenizerNormalized;
@@ -14,7 +19,9 @@ export class Tokenizer {
     constructor(tokenizer: ITokenizer) {
         this.tokenizer = Object.keys(tokenizer).map(symbol => [
             symbol,
-            new RegExp(tokenizer[symbol], "y"),
+            typeof tokenizer[symbol] == "string"
+                ? new RegExp(escapeRegExp(tokenizer[symbol]), "y")
+                : new RegExp(tokenizer[symbol], "y"),
         ]);
     }
 
@@ -41,6 +48,8 @@ export class Tokenizer {
                         range: {start: index, end: index + match[0].length - 1},
                     });
                     index += match[0].length;
+                    if (match[0].length == 0)
+                        throw Error("Regex may not match 0 length strings: " + regex);
                     continue outer;
                 }
             }
