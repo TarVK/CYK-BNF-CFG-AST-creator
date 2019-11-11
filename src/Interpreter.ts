@@ -72,7 +72,7 @@ export class Interpreter<V, C> {
      * @param context The context to pass to evaluators
      * @returns The result
      */
-    public evaluate(input: string, context: C): ICNFerror | ITokenizeError | V {
+    public evaluate(input: string, context?: C): ICNFerror | ITokenizeError | V {
         // Tokenize the input
         const tokens = this.tokenizer.tokenize(input);
         if ("error" in tokens) return tokens;
@@ -82,6 +82,7 @@ export class Interpreter<V, C> {
         if ("error" in tree) return tree;
 
         // Walk the tree and invoke the evaluation functions
+        if (!context) context = {} as any;
         return CFG.walkTree(tree, (node, children) => {
             // Check whether this is a base token, or other symbol
             if (!("children" in node)) {

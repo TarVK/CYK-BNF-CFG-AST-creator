@@ -31,5 +31,5 @@ export declare class Interpreter<V, C> {
      * @param context The context to pass to evaluators
      * @returns The result
      */
-    evaluate(input: string, context: C): ICNFerror | ITokenizeError | V;
+    evaluate(input: string, context?: C): ICNFerror | ITokenizeError | V;
 }

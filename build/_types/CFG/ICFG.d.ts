@@ -10,12 +10,7 @@ export declare type ICFGpattern = {
     metaData?: any;
 };
 /** A Symbol definition */
-export declare type ICFGsymbolDef = ICFGpattern[] | {
-    /** The patterns to chose from for a symbol */
-    options: ICFGpattern[];
-    /** Any contextual data you want to attach to the resulting AST */
-    metaData?: any;
-};
+export declare type ICFGsymbolDef = ICFGpattern[];
 /** A complete BNF grammar */
 export declare type ICFG = {
     [symbol: string]: ICFGsymbolDef;

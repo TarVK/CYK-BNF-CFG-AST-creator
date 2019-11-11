@@ -75,6 +75,17 @@ export class CFG {
             });
         }
 
+        // DEL
+        // for (let i = 0; i < symbols.length; i++) {
+        //     const symbol = symbols[i];
+        //     const options = cfg[symbol];
+
+        //     for (let j = 0; j < options.length; j++) {
+        //         const pattern = options.find(option=>option.parts.length==0);
+
+        //     }
+        // }
+
         // UNIT
         for (let i = 0; i < symbols.length; i++) {
             const symbol = symbols[i];
