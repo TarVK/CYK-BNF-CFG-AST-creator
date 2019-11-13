@@ -27,7 +27,9 @@
         "@deity/falcon-ui": "^0.2.4",
         "CYK-BNF-CFG-AST-creator": "link:..",
         "react": "^16.11.0",
-        "react-dom": "^16.11.0"
+        "react-dom": "^16.11.0",
+        "react-router-dom": "^5.1.2",
+        "react-tree-graph": "^4.0.1"
     },
     "devDependencies": {
         "@types/react": "^16.8.19",

@@ -5,8 +5,6 @@ type Symbol = string;
 export type ICFGpattern = {
     /** The sequence of symbols of this pattern */
     parts: Symbol[];
-    /** Whether to perform left or right recursion given a left and right recursive pattern*/
-    rightRecursive?: boolean;
     /** Any contextual data you want to attach to the resulting AST */
     metaData?: any;
 };

@@ -5,15 +5,19 @@ export declare type ICFGpatternNormalizedMetaData = {
         /** The symbol that defines this pattern as an option */
         defSymbol: string;
     };
-    /** Stores 'parent' data of unit rules */
+    /** Retains data removed by BIN operations, stores whether or not the left child contains multiple children of the same pattern */
+    leftRecursive?: boolean;
+    /** Retains data removed by DEL operations, store the left pattern that could result in an empty string */
+    leftEmpty?: ICFGpatternNormalizedMetaData;
+    /** Retains data removed by DEL operations, store the right pattern that could result in an empty string */
+    rightEmpty?: ICFGpatternNormalizedMetaData;
+    /** Retains data removed by UNIT operations, stores the 'parent' pattern*/
     parent?: ICFGpatternNormalizedMetaData;
 };
 /** A sequence of symbols */
 export declare type ICFGpatternNormalized = {
     /** The sequence of symbols of this pattern */
     parts: ISymbol[];
-    /** Whether to perform left or right recursion given a left and right recursive pattern*/
-    rightRecursive?: boolean;
     /** Contextual data linking to the original pattern */
     metaData?: ICFGpatternNormalizedMetaData;
 };

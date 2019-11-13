@@ -31,6 +31,21 @@ export declare class CFG {
      */
     protected copyCFG(grammar: ICFG): ICFGnormalized;
     /**
+     * Perform the BIN operation, splitting rules to ensure they have no more than 2 symbols
+     * @param cfg The grammar to perform the operation on
+     */
+    protected performBIN(cfg: ICFGnormalized): void;
+    /**
+     * Perform the DEL operation, removing any empty patterns
+     * @param cfg The grammar to perform the operation on
+     */
+    protected performDEL(cfg: ICFGnormalized): void;
+    /**
+     * Perform the UNIT operation, removing any patterns with just 1 part
+     * @param cfg The grammar to perform the operation on
+     */
+    protected performUNIT(cfg: ICFGnormalized): void;
+    /**
      * Creates a AST tree from a given input of lexical tokens
      * @param input The input
      * @returns The resulting tree or an error

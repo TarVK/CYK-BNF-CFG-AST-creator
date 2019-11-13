@@ -34,7 +34,7 @@ export const BNFinterpreter = new Interpreter<
                         .replace(/\\'/, "'")
                         .replace(/\\\\/, "\\"),
             },
-            eol: /\s*\r*\n/,
+            eol: /\s*\r*\n|$/,
         },
         grammar: {
             GRAMMAR: [
@@ -93,7 +93,13 @@ export const BNFinterpreter = new Interpreter<
                         return symbol;
                     },
                 },
-                {parts: ["sym"], eval: ([v]) => v},
+                {
+                    parts: ["sym"],
+                    eval: ([v], context) => {
+                        if (v.toLowerCase() == "eol") context.tokenizer[v] = /\r*\n|$/;
+                        return v;
+                    },
+                },
             ],
         },
     },
@@ -133,7 +139,7 @@ export class BNF {
         grammar: string
     ): {grammar: CFG; tokenizer: Tokenizer} | ICNFerror | ITokenizeError {
         const result = BNFinterpreter.evaluate(grammar, {
-            tokenizer: {EOL: /\r*\n/},
+            tokenizer: {},
             grammar: {},
         });
         if ("error" in result) return result;

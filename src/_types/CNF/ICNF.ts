@@ -7,8 +7,6 @@ export type ICNFpattern = {
     left: ISymbol;
     /** The right symbol of the pattern */
     right: ISymbol;
-    /** Whether this is a left recursive rule */
-    rightRecursive?: boolean;
     /** Any contextual data you want to attach to the resulting AST */
     metaData?: any;
 };

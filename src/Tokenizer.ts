@@ -45,11 +45,17 @@ export class Tokenizer {
                     tokens.push({
                         symbol: symbol,
                         text: match[0],
-                        range: {start: index, end: index + match[0].length - 1},
+                        range: {start: index, end: index + match[0].length},
                     });
                     index += match[0].length;
                     if (match[0].length == 0)
-                        throw Error("Regex may not match 0 length strings: " + regex);
+                        if (index == input.length) break;
+                        else
+                            throw Error(
+                                "Regex may not match 0 length strings: " +
+                                    regex +
+                                    ", use an empty pattern in the CFG instead"
+                            );
                     continue outer;
                 }
             }

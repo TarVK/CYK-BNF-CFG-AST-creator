@@ -1,12 +1,19 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import {HashRouter, Route} from "react-router-dom";
 import {
-    CNF,
+    // CNF,
     CFG,
-    Tokenizer,
-    Interpreter,
-    BNFinterpreter,
+    // Tokenizer,
+    // Interpreter,
+    // BNFinterpreter,
     BNF,
 } from "CYK-BNF-CFG-AST-creator";
-import "./mathCompiler";
+import {BNFPage} from "./BNF/BNFPage";
+import {ThemeProvider} from "emotion-theming";
+import {customizedTheme} from "./theme";
+import {Box} from "@deity/falcon-ui";
+// import "./mathCompiler";
 
 // window["CNF"] = CNF;
 
@@ -76,19 +83,19 @@ import "./mathCompiler";
 // });
 // window["someCFG"] = new CFG(
 //     {
-//         Exp: [
-//             {parts: ["Exp", "AddOp", "Term"]},
-//             {parts: ["AddOp", "Term"]},
-//             {parts: ["Term"]},
-//         ],
-//         Term: [{parts: ["Term", "MulOp", "Factor"]}, {parts: ["Factor"]}],
-//         Factor: [{parts: ["Factor", "Pow", "Primary"]}, {parts: ["Primary"]}],
-//         Primary: [{parts: ["LParen", "Exp", "RParen"]}, {parts: ["Num"]}],
-//         AddOp: [{parts: ["Add"]}, {parts: ["Sub"]}],
-//         MulOp: [{parts: ["Mul"]}, {parts: ["Div"]}],
+//         Exp: [{parts: ["Bob", "Bob"]}],
+//         Bob: [{parts: ["Text"]}, {parts: []}],
 //     },
 //     "Exp"
 // );
+window["someCFG"] = new CFG(
+    {
+        Exp: [{parts: ["John", "John", "John"]}],
+        John: [{parts: ["Bob", "Bob", "Bob"]}],
+        Bob: [{parts: ["Text"]}, {parts: []}],
+    },
+    "Exp"
+);
 
 // window["interpreter"] = new Interpreter<number, any>(
 //     {
@@ -145,7 +152,7 @@ import "./mathCompiler";
 
 // window["CFG"] = CFG;
 // window["bnf"] = BNFinterpreter;
-// window["BNF"] = BNF;
+window["BNF"] = BNF;
 
 // window["bnfBNF"] = new BNF(
 //     `
@@ -169,3 +176,16 @@ import "./mathCompiler";
 //  <rule-char>      ::= <letter> | <digit> | "-"
 // `.trim()
 // );
+
+ReactDOM.render(
+    <ThemeProvider theme={customizedTheme}>
+        <Box css={({theme}) => ({fontFamily: theme.fonts.mono})}>
+            <HashRouter>
+                <Route exact path="/">
+                    <BNFPage />
+                </Route>
+            </HashRouter>
+        </Box>
+    </ThemeProvider>,
+    document.getElementById("root")
+);

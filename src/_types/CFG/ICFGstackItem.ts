@@ -1,9 +1,12 @@
 import {ICNFtree} from "../CNF/ICNFtree";
 import {ICFGtree} from "./ICFGtree";
+import {ICFGpatternNormalizedMetaData} from "./ICFGnormalized";
 
 export type ICFGstackItem = {
-    node: ICFGtree;
+    node?: ICFGtree;
     cnfNode: ICNFtree;
-    left: ICFGstackItem;
-    right: ICFGstackItem;
+    metaData: ICFGpatternNormalizedMetaData;
+    range: {start: number; end: number};
+    children: ICFGstackItem[];
+    initialized: boolean;
 };
