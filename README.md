@@ -11,9 +11,9 @@ If you have no clue what any of these things mean but you're interested in it, l
 
 ## Demos
 I have made 3 semi-realistic use cases of the classes provided in this project:
-- [BNF playground](), a page in which BNF definitions of a language can be tested
-- [REPL calculator](), a simple calculator that immediately evaluates a formula
-- [Plotter](), a simple plotter that compiles the formula to a simple operations array, to be executed many times in an efficient manner
+- [BNF playground](https://tarvk.github.io/CYK-BNF-CFG-AST-creator/examples/build/#/bnf), a page in which BNF definitions of a language can be tested
+- [REPL calculator](https://tarvk.github.io/CYK-BNF-CFG-AST-creator/examples/build/#/plotter), a simple calculator that immediately evaluates a formula
+- [Plotter](https://tarvk.github.io/CYK-BNF-CFG-AST-creator/examples/build/#/calculator), a simple plotter that compiles the formula to a simple operations array, to be executed many times in an efficient manner
 
 Note that the plotter actually makes use of [function-plot](https://github.com/mauriciopoppe/function-plot) which already has it's own evaluator build in which is way more capable than mine. My code is just meant to show how any arbitrary data can be obtained using the interpreter. 
 
@@ -33,7 +33,7 @@ const tokenizer = new Tokenizer({
     LParen: /\s*\(/,
     RParen: /\)\s*/,
 });
-const tokens = tokenizer.tokenize("5(45*.3))
+const tokens = tokenizer.tokenize("5(45*.3)");
 ```
 ### CNF
 The project contains a class to create a binary tree from a token list, according to a [Chomsky Normal Form grammar](https://en.wikipedia.org/wiki/Chomsky_normal_form). 
