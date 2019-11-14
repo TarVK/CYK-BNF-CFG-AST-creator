@@ -66,6 +66,7 @@ const tree = cnf.createBinaryTree([
 Since it's quite annoying/difficult to formulate a context free grammar in CNF, a higher level CFG class exists.
 This class internally translates the passed grammar into a grammar in CNF using the steps described [here](https://en.wikipedia.org/wiki/Chomsky_normal_form#Converting_a_grammar_to_Chomsky_normal_form). During this translation, metadata associating rules with rules from the initial CFG are kept. We can then apply CYK to some input sequence and obtain a binary tree. From this binary tree a tree in the form of the original CFG is obtained using the stored metadata, using a custom approach/algorithm.
 ```ts
+import {CFG} from "CYK-BNF-CFG-AST-creator";
 const cfg = new CFG(
     {
         EXP: [
@@ -96,7 +97,8 @@ Simple math interpreter example
 </summary>
 
 ```ts
- const mathInterpreter = new Interpreter<any, any>(
+import {Interpreter} from "CYK-BNF-CFG-AST-creator";
+const mathInterpreter = new Interpreter<any, any>(
     {
         tokenizer: {
             Num: {
@@ -171,6 +173,7 @@ const result = mathInterpreter.evaluate("3+4*5");
 ### BNF
 A BNF class is included in order to essentially create a CFG, but instead define it using a [BNF syntax](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form), rather than a json definition of a Tokenizer and CFG. 
 ```ts
+import {BNF} from "CYK-BNF-CFG-AST-creator";
 const bnf = new BNF(`
     <Exp>     ::= <Exp> "+" <Term>          | <Exp> "-" <Term>      | <Term>
     <Term>    ::= <Term> "*" <Factor>       | <Term> "/" <Factor>   | <Factor>
