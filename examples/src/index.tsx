@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {HashRouter, Route, Switch} from "react-router-dom";
 import {
-    // CNF,
+    CNF,
     CFG,
     // Tokenizer,
     // Interpreter,
@@ -14,9 +14,10 @@ import {ThemeProvider} from "emotion-theming";
 import {customizedTheme} from "./theme";
 import {Box} from "@deity/falcon-ui";
 import {PlotterPage} from "./plotter/PlotterPage";
+import {CalculatorPage} from "./Calculator/CalculatorPage";
 // import "./mathCompiler";
 
-// window["CNF"] = CNF;
+window["CNF"] = CNF;
 
 // // create some test CNF
 // window["someCNF"] = new CNF(
@@ -89,14 +90,14 @@ import {PlotterPage} from "./plotter/PlotterPage";
 //     },
 //     "Exp"
 // );
-window["someCFG"] = new CFG(
-    {
-        Exp: [{parts: ["John", "John", "John"]}],
-        John: [{parts: ["Bob", "Bob", "Bob"]}],
-        Bob: [{parts: ["Text"]}, {parts: []}],
-    },
-    "Exp"
-);
+// window["someCFG"] = new CFG(
+//     {
+//         Exp: [{parts: ["John", "John", "John"]}],
+//         John: [{parts: ["Bob", "Bob", "Bob"]}],
+//         Bob: [{parts: ["Text"]}, {parts: []}],
+//     },
+//     "Exp"
+// );
 
 // window["interpreter"] = new Interpreter<number, any>(
 //     {
@@ -188,6 +189,9 @@ ReactDOM.render(
                     </Route>
                     <Route exact path="/plotter">
                         <PlotterPage />
+                    </Route>
+                    <Route exact path="/calculator">
+                        <CalculatorPage />
                     </Route>
                     <Route path="/">
                         <BNFPage />

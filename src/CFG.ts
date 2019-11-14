@@ -252,7 +252,7 @@ export class CFG {
      */
     public createASTtree(input: ITokenized): ICFGtree | ICNFerror {
         // Parse the tree using CNF
-        const binaryTree = this.CNF.getBinaryTree(input);
+        const binaryTree = this.CNF.createBinaryTree(input);
         if ("error" in binaryTree) return binaryTree;
 
         // Creates an empty cnf node
@@ -393,7 +393,10 @@ export class CFG {
                 } else {
                     // Call the reduce method using the children's values
                     stack.pop();
-                    top.result = reduce(node, top.children.map(child => child.result));
+                    top.result = reduce(
+                        node,
+                        top.children.map(child => child.result)
+                    );
                     if (stack.length == 0) return top.result;
                 }
             }

@@ -1,6 +1,6 @@
 import {Interpreter} from "CYK-BNF-CFG-AST-creator";
 
-const mathInterpreter = new Interpreter<any, any>(
+export const mathInterpreter = new Interpreter<any, any>(
     {
         tokenizer: {
             Num: {match: /\s*([0-9]*\.)?[0-9]+\s*/, eval: text => Number(text)},
@@ -37,7 +37,7 @@ const mathInterpreter = new Interpreter<any, any>(
                 },
                 {
                     parts: ["Term", "Factor"],
-                    eval: ([l, r], c) => l * r,
+                    eval: ([l, r]) => l * r,
                 },
                 {
                     parts: ["Term", "Div", "Factor"],

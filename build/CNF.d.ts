@@ -35,5 +35,5 @@ export declare class CNF {
      * @param input The input to construct a tree for
      * @returns The tree
      */
-    getBinaryTree(input: ITokenized): ICNFtree | ICNFerror;
+    createBinaryTree(input: ITokenized): ICNFtree | ICNFerror;
 }

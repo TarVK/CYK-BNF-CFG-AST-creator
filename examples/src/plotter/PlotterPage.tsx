@@ -71,18 +71,24 @@ export const PlotterPage = () => {
             </Box>
             <Box
                 css={{height: "calc(100% - 70px)", div: {height: "100%", width: "100%"}}}>
-                <Plotter
-                    type={
-                        state.formula &&
-                        state.formula.expression.reduce(
-                            (c, v) => c || (v.type == "var" && (v as any)[0] == "y"),
-                            false
-                        )
-                            ? "implicit"
-                            : "linear"
-                    }
-                    func={state.function}
-                />
+                {state.error ? (
+                    <Box p="md" css={{color: "red"}}>
+                        {state.error}
+                    </Box>
+                ) : (
+                    <Plotter
+                        type={
+                            state.formula &&
+                            state.formula.expression.reduce(
+                                (c, v) => c || (v.type == "var" && (v as any)[0] == "y"),
+                                false
+                            )
+                                ? "implicit"
+                                : "linear"
+                        }
+                        func={state.function}
+                    />
+                )}
             </Box>
         </Box>
     );

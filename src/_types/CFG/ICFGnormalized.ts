@@ -1,4 +1,4 @@
-import {ICFGsymbolDef, ICFGpattern} from "./ICFG";
+import {ICFGpattern} from "./ICFG";
 import {ISymbol} from "../CNF/ICNF";
 
 export type ICFGpatternNormalizedMetaData = {
@@ -29,11 +29,3 @@ export type ICFGsymbolDefNormalized = ICFGpatternNormalized[];
 
 /** A complete BNF grammar */
 export type ICFGnormalized = {[symbol: string]: ICFGsymbolDefNormalized};
-
-/*
-
-A ::= B:1
-B ::= CC:2
-C ::= "":3
-
- */

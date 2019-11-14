@@ -165,7 +165,7 @@ export class CNF {
      * @param input The input to construct a tree for
      * @returns The tree
      */
-    public getBinaryTree(input: ITokenized): ICNFtree | ICNFerror {
+    public createBinaryTree(input: ITokenized): ICNFtree | ICNFerror {
         // Obtain the table using CYK
         const table = this.performCYK(input);
 
