@@ -6,7 +6,7 @@ export const CalculatorPage = () => {
     const [history, setHistory] = useState(
         [] as {id: number; input: string; formula: string; error: string}[]
     );
-    const [input, setInput] = useState({text: "", historyIndex: 1, buffer: ""});
+    const [input, setInput] = useState({text: "3(2+5)", historyIndex: 1, buffer: ""});
 
     const evaluate = () => {
         const result = mathInterpreter.evaluate(input.text);
@@ -64,7 +64,9 @@ export const CalculatorPage = () => {
     };
 
     return (
-        <Box css={{height: "100%", overflow: "auto"}}>
+        <Box
+            css={{height: "100%", overflow: "auto"}}
+            ref={el => el && (el.scrollTop = el.scrollHeight)}>
             {history.map(line => (
                 <Box key={line.id} p="sm" css={{fontSize: 30}} display="flex">
                     <Box flex={1}>{line.formula}</Box>

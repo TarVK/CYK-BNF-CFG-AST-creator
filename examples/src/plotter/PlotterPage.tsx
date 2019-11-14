@@ -7,7 +7,7 @@ import {Variables, Expression} from "./mathExecutor";
 export const PlotterPage = () => {
     const updatePlot = useRef(null as () => void);
     const [state, setState] = useState({
-        formulaText: "",
+        formulaText: "x*x + y*y - 1",
         formula: null as {
             expression: Expression;
             evaluate: (variables: Variables) => number;
@@ -15,6 +15,7 @@ export const PlotterPage = () => {
         function: (data: {x: Interval}) => ({lo: 0, hi: 0}),
         error: null as string,
     });
+    useEffect(() => updatePlot.current(), []);
 
     // Updates the tree
     updatePlot.current = () => {
