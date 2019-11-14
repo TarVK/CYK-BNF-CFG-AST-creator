@@ -1,41 +1,6 @@
 import {Interpreter} from "CYK-BNF-CFG-AST-creator";
-
-/** A single operation of an expression */
-type Operation = {
-    type: "val" | "var" | "negate" | "add" | "sub" | "mul" | "div" | "pow";
-    [operants: number]: number;
-};
-/** The format that our compiled expression will have */
-type Expression = Operation[];
-
-/** The format for input variables for an expression */
-type Variables = {[variable: string]: number};
-
-/**
- * A function that evaluates a given expression to provide a result
- * @param expression The expression to evaluate
- * @param variables The variables to evaluate the expression with
- * @returns The result of the expression
- */
-const evaluate = (expression: Expression, variables: Variables): number => {
-    const result = [];
-    for (let i = 0; i < expression.length; i++) {
-        const op = expression[i];
-        const {type, 0: l, 1: r} = op;
-
-        // Perform the operation corresponding with the given type
-        if (type == "val") result.push(l);
-        else if (type == "var") result.push(variables[l]);
-        else if (type == "negate") result.push(-result[l]);
-        else if (type == "add") result.push(result[l] + result[r]);
-        else if (type == "sub") result.push(result[l] - result[r]);
-        else if (type == "mul") result.push(result[l] * result[r]);
-        else if (type == "div") result.push(result[l] / result[r]);
-        else if (type == "pow") result.push(Math.pow(result[l], result[r]));
-    }
-
-    return result[result.length - 1];
-};
+import {Variables, execute} from "./mathExecutor";
+import {executeInterval} from "./mathExecutorInterval";
 
 // Adds an operation to the context's operations array (uses the fact that tree walk performs a depth first walk)
 const addOp = (context, type, ...children) => {
@@ -45,12 +10,19 @@ const addOp = (context, type, ...children) => {
     return result.length - 1;
 };
 
-const mathCompiler = new Interpreter<any, any>(
+/**
+ * An object to compile a simple mathematical expression into an array of operations that can easily be executed repeadetly
+ */
+export const mathCompiler = new Interpreter<any, any>(
     {
         tokenizer: {
             Num: {
                 match: /\s*([0-9]*\.)?[0-9]+\s*/,
                 eval: text => Number(text),
+            },
+            Func: {
+                match: /\s*(sin|cos)\s*/,
+                eval: (text, match) => match[1],
             },
             Var: {
                 match: /\s*([a-zA-Z]+)\s*/,
@@ -98,6 +70,10 @@ const mathCompiler = new Interpreter<any, any>(
                     parts: ["Factor", "Pow", "Primary"],
                     eval: ([l, op, r], c) => addOp(c, "pow", l, r),
                 },
+                {
+                    parts: ["Func", "Exp"],
+                    eval: ([func, l], c) => addOp(c, func, l),
+                },
                 {parts: ["Primary"], eval: ([v]) => v},
             ],
             Primary: [
@@ -111,7 +87,9 @@ const mathCompiler = new Interpreter<any, any>(
                     parts: ["Exp"],
                     eval: ([], {result: exp}) => ({
                         expression: exp,
-                        evaluate: (variables: Variables) => evaluate(exp, variables),
+                        evaluate: (variables: Variables) => execute(exp, variables), // not used in demo
+                        evaluateInterval: (variables: Variables) =>
+                            executeInterval(exp, variables),
                     }),
                 },
             ],
@@ -119,7 +97,3 @@ const mathCompiler = new Interpreter<any, any>(
     },
     "Executer"
 );
-
-const expression = mathCompiler.evaluate("30-5a+(2^2)b");
-console.log(expression);
-console.log(expression.evaluate({a: 7, b: 2}));

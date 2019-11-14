@@ -18,6 +18,7 @@ export const BNFPage = () => {
     const [inputData, setInputData] = useState({
         text: "",
         tree: {},
+        nodes: {},
         error: null as string,
     });
 
@@ -47,9 +48,21 @@ export const BNFPage = () => {
             setInputData(data => ({
                 ...data,
                 tree: {},
+                nodes: {},
                 error: "The given input string doesn't adhere to the defined bnf",
             }));
-        else setInputData(data => ({...data, tree: result, error: null}));
+        else {
+            const nodes = {};
+            const addId = node => {
+                if (node) {
+                    node.id = Math.floor(Math.random() * 1e8);
+                    nodes[node.id] = node;
+                    if (node.children) node.children.forEach(child => addId(child));
+                }
+            };
+            addId(result);
+            setInputData(data => ({...data, tree: result, nodes, error: null}));
+        }
     };
 
     const updateBnfDefinition = definition => {
@@ -147,7 +160,7 @@ export const BNFPage = () => {
                 <Box css={{position: "absolute"}} pl="sm" pt="sm">
                     <Button onClick={updateTree.current}>Refresh tree</Button>
                 </Box>
-                <BNFTree data={inputData.tree} />
+                <BNFTree tree={inputData.tree} nodes={inputData.nodes} />
             </Box>
         </Box>
     );

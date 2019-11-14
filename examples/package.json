@@ -26,6 +26,8 @@
     "dependencies": {
         "@deity/falcon-ui": "^0.2.4",
         "CYK-BNF-CFG-AST-creator": "link:..",
+        "d3": "3.5.17",
+        "function-plot": "1.18.1",
         "react": "^16.11.0",
         "react-dom": "^16.11.0",
         "react-router-dom": "^5.1.2",

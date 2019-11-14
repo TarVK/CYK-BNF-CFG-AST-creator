@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {HashRouter, Route} from "react-router-dom";
+import {HashRouter, Route, Switch} from "react-router-dom";
 import {
     // CNF,
     CFG,
@@ -13,6 +13,7 @@ import {BNFPage} from "./BNF/BNFPage";
 import {ThemeProvider} from "emotion-theming";
 import {customizedTheme} from "./theme";
 import {Box} from "@deity/falcon-ui";
+import {PlotterPage} from "./plotter/PlotterPage";
 // import "./mathCompiler";
 
 // window["CNF"] = CNF;
@@ -181,9 +182,17 @@ ReactDOM.render(
     <ThemeProvider theme={customizedTheme}>
         <Box css={({theme}) => ({fontFamily: theme.fonts.mono})}>
             <HashRouter>
-                <Route exact path="/">
-                    <BNFPage />
-                </Route>
+                <Switch>
+                    <Route exact path="/BNF">
+                        <BNFPage />
+                    </Route>
+                    <Route exact path="/plotter">
+                        <PlotterPage />
+                    </Route>
+                    <Route path="/">
+                        <BNFPage />
+                    </Route>
+                </Switch>
             </HashRouter>
         </Box>
     </ThemeProvider>,

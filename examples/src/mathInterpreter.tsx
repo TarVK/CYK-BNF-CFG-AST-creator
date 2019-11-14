@@ -1,9 +1,13 @@
 import {Interpreter} from "CYK-BNF-CFG-AST-creator";
 
-const mathInterpreter = new Interpreter<number, any>(
+const mathInterpreter = new Interpreter<any, any>(
     {
         tokenizer: {
             Num: {match: /\s*([0-9]*\.)?[0-9]+\s*/, eval: text => Number(text)},
+            Func: {
+                match: /\s*(sin|cos|sqrt)\s*/,
+                eval: (text, match) => match[1],
+            },
             Mul: "*",
             Div: "/",
             Add: "+",
@@ -32,6 +36,10 @@ const mathInterpreter = new Interpreter<number, any>(
                     eval: ([l, op, r]) => l * r,
                 },
                 {
+                    parts: ["Term", "Factor"],
+                    eval: ([l, r], c) => l * r,
+                },
+                {
                     parts: ["Term", "Div", "Factor"],
                     eval: ([l, op, r]) => l / r,
                 },
@@ -41,6 +49,10 @@ const mathInterpreter = new Interpreter<number, any>(
                 {
                     parts: ["Factor", "Pow", "Primary"],
                     eval: ([l, op, r]) => Math.pow(l, r),
+                },
+                {
+                    parts: ["Func", "Primary"],
+                    eval: ([op, v]) => Math[op](v),
                 },
                 {parts: ["Primary"], eval: ([v]) => v},
             ],
@@ -52,4 +64,3 @@ const mathInterpreter = new Interpreter<number, any>(
     },
     "Exp"
 );
-console.log(mathInterpreter.evaluate("-30-(25+5)*2"));
