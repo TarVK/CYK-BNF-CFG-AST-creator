@@ -26,16 +26,29 @@ export const PlotterPage = () => {
             setState(data => ({
                 ...data,
                 formula: null,
-                error: "Syntax error",
+                error: "Syntax error, only +, -, * and / are supported",
                 function: () => ({lo: 0, hi: 0}),
             }));
         else {
-            setState(data => ({
-                ...data,
-                formula: result,
-                error: null,
-                function: result.evaluateInterval,
-            }));
+            try {
+                // Check if we didn't use unssuported ops
+                result.evaluateInterval({lo: 0, hi: 0});
+                // Store the data
+                setState(data => ({
+                    ...data,
+                    formula: result,
+                    error: null,
+                    function: result.evaluateInterval,
+                }));
+            } catch (e) {
+                // If an error was thrown
+                setState(data => ({
+                    ...data,
+                    formula: null,
+                    error: "Syntax error, only +, -, * and / are supported",
+                    function: () => ({lo: 0, hi: 0}),
+                }));
+            }
         }
     };
     const handleKeyDown = event => {

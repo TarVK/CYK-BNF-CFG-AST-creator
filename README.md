@@ -70,9 +70,9 @@ const cfg = new CFG(
     {
         EXP: [
             {parts: ["EXP", "Add", "EXP"], metaData:5}, // We can attach any metadata to an expression under the metaData key
-            {parts: ["EXP", "Add", "EXP"]}, 
-            {parts: ["EXP", "Add", "EXP"]}, 
-            {parts: ["EXP", "Add", "EXP"]}, 
+            {parts: ["EXP", "Sub", "EXP"]}, 
+            {parts: ["EXP", "Mul", "EXP"]}, 
+            {parts: ["EXP", "Div", "EXP"]}, 
             {parts: ["Num"]}
         ],
     },
@@ -96,7 +96,7 @@ Simple math interpreter example
 </summary>
 
 ```ts
- const mathInterpreter = new Interpreter<any, any>(
+ const mathInterpreter = new Interpreter(
     {
         tokenizer: {
             Num: {
