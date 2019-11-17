@@ -85,7 +85,7 @@ export class CNF {
      * @returns The table
      */
     public performCYK(input: ITokenized, approximate?: boolean): ICYKtable {
-        // usage of re represents the column or range end, and rs the row or range start (as index of the token)
+        // Usage of 're' represents the column or range end, and 'rs' the row or range start (as index of the token)
 
         // Declare the table
         const table: ICYKtable = [];
@@ -103,7 +103,9 @@ export class CNF {
                     const s = input[rs].symbol;
                     cell.symbols.push(s);
 
-                    // Copy all the definitions and symbols that match
+                    // Copy all the definitions and symbols that match straight away, 
+                    // which is any pattern that has the token symbol as a left child, and nothing as a right child:
+                    // this.lookupTable[s]["undefined"]
                     const t = this.lookupTable[s];
                     if (t && t["undefined"])
                         t["undefined"].forEach(def => {
