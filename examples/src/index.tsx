@@ -7,6 +7,7 @@ import {customizedTheme} from "./theme";
 import {Box} from "@deity/falcon-ui";
 import {PlotterPage} from "./plotter/PlotterPage";
 import {CalculatorPage} from "./Calculator/CalculatorPage";
+import {Tokenizer, CFG, CNF, BNF, Interpreter} from "CYK-BNF-CFG-AST-creator";
 
 ReactDOM.render(
     <ThemeProvider theme={customizedTheme}>
@@ -31,3 +32,10 @@ ReactDOM.render(
     </ThemeProvider>,
     document.getElementById("root")
 );
+
+// For testing
+window["Tokenizer"] = Tokenizer;
+window["CFG"] = CFG;
+window["CNF"] = CNF;
+window["BNF"] = BNF;
+window["Interpreter"] = Interpreter;
