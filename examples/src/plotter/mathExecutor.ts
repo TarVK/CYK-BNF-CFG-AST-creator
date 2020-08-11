@@ -36,11 +36,3 @@ export const execute = (expression: Expression, variables: Variables): number =>
 
     return result[result.length - 1];
 };
-
-// The evaluator below operates on intervals. It's not very important to understand it,
-// It's there to work with the implicit formula evaluation of function-plot
-
-const p = (v1, v2, op) => {
-    const vals = [op(v1.lo, v2.lo), op(v1.hi, v2.lo), op(v1.lo, v2.hi), op(v1.hi, v2.hi)];
-    return {lo: Math.min(...vals), hi: Math.max(...vals)};
-};
